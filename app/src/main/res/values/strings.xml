@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">HelloPdfProvider</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="url_pdf">http://www.saintbonaventure.com/faculty/mcelvogue/documents/JabberwockyGlossary_000.pdf</string>
+    <string name="share_subject">Jabberwocky</string>
+    <string name="share_title">Jabberwocky by Lewis Carroll</string>
+
+</resources>
