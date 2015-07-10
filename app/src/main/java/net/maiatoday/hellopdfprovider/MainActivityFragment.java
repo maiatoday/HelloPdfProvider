@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ProgressBar;
 
 import java.io.File;
 
@@ -26,6 +27,7 @@ public class MainActivityFragment extends Fragment {
     private static final String LOG_TAG = MainActivityFragment.class.getSimpleName();
     private Button mFetch;
     private Button mPaw;
+    private ProgressBar mProgress;
     private File mFile;
     private String mFileName = "documents/file.pdf";
 
@@ -55,11 +57,13 @@ public class MainActivityFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_main, container, false);
         mFetch = (Button) view.findViewById(R.id.btn_fetch);
         mPaw = (Button) view.findViewById(R.id.btn_paw);
+        mProgress = (ProgressBar) view.findViewById(R.id.progressBar);
         return view;
     }
 
     public void fetch(View view) {
         Log.d(LOG_TAG, "fetch");
+        mProgress.setVisibility(View.VISIBLE);
         MyIntentService.startActionFoo(getActivity(), getString(R.string.url_pdf), mFileName);
         mPaw.setEnabled(false);
     }
@@ -75,8 +79,8 @@ public class MainActivityFragment extends Fragment {
         if (inFile != null) {
             // let the FileProvider generate an URI for this private file
             final Uri uri = FileProvider.getUriForFile(getActivity(), "net.maiatoday.hellopdfprovider", inFile);
-            // create an intent, so the user can choose which application he/she wants to use to share this file
-            final Intent intent = ShareCompat.IntentBuilder.from(getActivity())
+            // IntentBuilder builds a share or share multiple intent.
+            final Intent intentShare = ShareCompat.IntentBuilder.from(getActivity())
                     .setType("application/pdf")
                     .setSubject(this.getString(R.string.share_subject))
                     .setStream(uri)
@@ -85,7 +89,12 @@ public class MainActivityFragment extends Fragment {
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT)
                     .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
-            this.startActivity(intent);
+            final Intent intentView = new Intent(Intent.ACTION_VIEW);
+            intentView.setDataAndType(uri, getActivity().getContentResolver().getType(uri));
+            intentView.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            intentView.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+
+            this.startActivity(intentView);
         }
     }
 
@@ -95,6 +104,7 @@ public class MainActivityFragment extends Fragment {
         public void onReceive(Context context, Intent intent) {
             Log.v(LOG_TAG, "Do something.");
             mPaw.setEnabled(true);
+            mProgress.setVisibility(View.GONE);
             mFile = new File(getActivity().getCacheDir(), mFileName);
         }
     };
